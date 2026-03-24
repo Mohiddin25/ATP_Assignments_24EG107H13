@@ -1,0 +1,27 @@
+
+nav{
+    background-color: antiquewhite;
+}
+
+ul{
+    display: flex;
+    justify-content: space-around;
+    padding: 30px;
+    font-size: 20px;
+    margin:0;
+}
+img{
+    width: 100px;
+}
+.field{
+    display: flex;
+    margin-top: 100px;
+    justify-content: space-around;
+    gap: 40px;
+}
+.card{
+    text-align: center;
+    box-shadow: 0px 0px 20px gray;
+    border-radius: 20px;
+    padding: 40px;
+}

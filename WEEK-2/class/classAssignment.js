@@ -56,7 +56,7 @@ class Book{
             if(!this.isAvailable){
                 this.isAvailable=true
             }else{
-                print("You already returned the book")
+                con("You already returned the book")
             }
         }
 //       getInfo() - Returns a string with book details (e.g., "The Hobbit by J.R.R. Tolkien (310 pages)")
