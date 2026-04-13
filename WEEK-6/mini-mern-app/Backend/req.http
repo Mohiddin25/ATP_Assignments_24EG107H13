@@ -1,0 +1,27 @@
+
+###Read all employees
+GET http://localhost:3000/employee-api/employee
+
+###Create employee
+POST http://localhost:3000/employee-api/employee
+Content-Type: application/json
+
+{
+    "name":"Khasim",
+    "email":"Khasim1234@gmail.com",
+    "mobile":123456,
+    "designation":"Engineer",
+    "companyName":"XYZ"
+}
+
+###Edit employee
+PUT http://localhost:3000/employee-api/employee/69ca1cb373209e8bfc4d287a
+Content-Type: application/json
+
+{
+    "email":"Khasim1234@gmail.com",
+    "mobile":98765432
+}
+
+### Delete employee
+DELETE http://localhost:3000/employee-api/employee/69ca44f8c1ffe69f1717c557
