@@ -13,8 +13,9 @@ import {
   loadingClass,
 } from "../styles/common";
 import { NavLink, useNavigate, useLocation } from "react-router";
-import { useAuth } from "./store/authStore";
+import {useAuth} from "./store/authStore";
 import { useEffect } from "react";
+import {toast} from 'react-hot-toast'
 
 function Login() {
   const {
@@ -22,31 +23,38 @@ function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm();
+
   const navigate = useNavigate();
-  
-  const {login,currentUser,loading,error,isAuthenticated}=useAuth((state)=>state)
+  //get state from auth store
+  const { login, currentUser, loading, error, isAuthenticated } = useAuth((state) => state);
+  //on user login
   const onUserLogin = (userCredObj) => {
-    console.log(userCredObj);
-    login(userCredObj)
+    //call login() of auth store
+    login(userCredObj);
   };
-  console.log("Current User: ",currentUser)
-  useEffect(()=>{
-    // navigation logic
-    if(isAuthenticated===true){
-      if(currentUser.role==="USER"){
-        navigate("/user-profile")
+
+  useEffect(() => {
+    //navigation logic
+    if (isAuthenticated === true) {
+      if (currentUser.role === "USER") {
+        //show cuccess toast
+        toast.success("Login success and redirecting to User Profile",{duration:2000})
+        navigate("/user-profile");
       }
-      if(currentUser.role==="AUTHOR"){
-        navigate("/author-profile")
+      if (currentUser.role === "AUTHOR") {
+         toast.success("Login success and redirecting to Author Profile",{duration:2000})
+        navigate("/author-profile");
       }
-      if(currentUser.role==="ADMIN"){
-        navigate("/admin-profile")
+      if (currentUser.role === "ADMIN") {
+         toast.success("Login success and redirecting to Admin Profile",{duration:2000})
+        navigate("/admin-profile");
       }
     }
-  },[isAuthenticated])
-  
-  if(loading){
-    return <p className="loadingClass">Loading...</p>
+  }, [isAuthenticated]);
+
+  //deal with loading
+  if (loading) {
+    return <p className={loadingClass}>Loading....</p>;
   }
 
   return (
