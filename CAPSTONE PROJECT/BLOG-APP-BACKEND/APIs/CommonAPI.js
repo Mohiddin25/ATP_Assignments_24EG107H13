@@ -3,26 +3,58 @@ import {UserModel} from '../models/UserModel.js'
 import {hash,compare} from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { verifyToken } from '../middlewares/verifyToken.js'
+import cloudinary from '../config/cloudinary.js'
+import { upload } from '../config/multer.js'
+import { uploadToCloudinary } from '../config/cloudinaryUpload.js'
 const {sign}=jwt
 export const commonApp=exp.Router()
 
 // Route for register
-commonApp.post('/user',async(req,res)=>{
-    let allowedRoles=['USER',"AUTHOR"]
-    // get user from request
-    const newUser=req.body
-    // check roles
-    if(!allowedRoles.includes(newUser.role)){
-        return res.status(400).json({message:"Invalid role"})
+commonApp.post('/user', upload.single("profileImageUrl"),async (req, res,next) => {
+
+    let cloudinaryResult;
+  try {
+    let allowedRoles = ["USER", "AUTHOR"];
+    //get user from req
+    const newUser = req.body;
+    console.log(newUser);
+    console.log(req.file);
+
+    //check role
+    if (!allowedRoles.includes(newUser.role)) {
+      return res.status(400).json({ message: "Invalid role" });
     }
-    // Hash password and replace plain with hashed one
-    newUser.password=await hash(newUser.password,12)
-    // create new user document
-    const newUserDocument=new UserModel(newUser)
-    // save document
-    await newUserDocument.save()
-    res.status(201).json({message:"User created"})
-})
+
+    //Upload image to cloudinary from memoryStorage
+    if (req.file) {
+      cloudinaryResult = await uploadToCloudinary(req.file.buffer);
+    }
+
+    // console.log("cloudinaryResult", cloudinaryResult);
+    //add CDN link(secure_url) of image to newUserObj
+    newUser.profileImageUrl = cloudinaryResult?.secure_url;
+
+    //run validators manually
+    //hash password and replace plain with hashed one
+    newUser.password = await hash(newUser.password, 12);
+
+    //create New user document
+    const newUserDoc = new UserModel(newUser);
+
+    //save document
+    await newUserDoc.save();
+    //send res
+    res.status(201).json({ message: "User created" });
+  } catch (err) {
+    console.log("err is ", err);
+    //delete image from cloudinary
+    if (cloudinaryResult?.public_id) {
+      await cloudinary.uploader.destroy(cloudinaryResult.public_id);
+    }
+    next(err);
+  }
+});
+
 // Route for Login (USER,ADMIN,AUTHOR)
 commonApp.post('/login',async(req,res)=>{
     // get email,password from req.body
