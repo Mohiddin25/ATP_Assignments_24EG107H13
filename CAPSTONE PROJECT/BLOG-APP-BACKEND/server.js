@@ -14,7 +14,7 @@ config()
 // creating an express application
 const app=exp()
 app.use(cors({
-    origin:['https://mern-capstoneproject-frontend.vercel.app'],
+    origin:'https://mern-capstoneproject-frontend.vercel.app',
     credentials:true
 }))
 // body parser middleware
