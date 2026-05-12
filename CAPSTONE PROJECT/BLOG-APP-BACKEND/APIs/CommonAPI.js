@@ -9,63 +9,51 @@ import { uploadToCloudinary } from '../config/cloudinaryUpload.js'
 const {sign}=jwt
 export const commonApp=exp.Router()
 
-// Route for register
-commonApp.post('/user', upload.single("profileImageUrl"), async (req, res, next) => {
+//router to rigester user
+commonApp.post("/user", upload.single("profileImageUrl"), async (req, res, next) => {
   let cloudinaryResult;
-
   try {
-    const { firstName, lastName, email, password, role } = req.body;
+    let allowedRoles = ["USER", "AUTHOR"];
+    //get user from req
+    const newUser = req.body;
+    console.log(newUser);
+    console.log(req.file);
 
-    // validation
-    if (!firstName || !email || !password || !role) {
-      return res.status(400).json({ message: "First name, email, password and role are required" });
-    }
-
-    const allowedRoles = ["USER", "AUTHOR"];
-    if (!allowedRoles.includes(role)) {
+    //check role
+    if (!allowedRoles.includes(newUser.role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
 
-    // check duplicate
-    const existingUser = await UserModel.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
-    }
-
-    // upload image
+    //Upload image to cloudinary from memoryStorage
     if (req.file) {
       cloudinaryResult = await uploadToCloudinary(req.file.buffer);
     }
 
-    // hash password
-    const hashedPassword = await hash(password, 12);
+    // console.log("cloudinaryResult", cloudinaryResult);
+    //add CDN link(secure_url) of image to newUserObj
+    newUser.profileImageUrl = cloudinaryResult?.secure_url;
 
-    // create user object
-    const userObj = {
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-      role,
-      profileImageUrl: cloudinaryResult?.secure_url
-    };
+    //run validators manually
+    //hash password and replace plain with hashed one
+    newUser.password = await hash(newUser.password, 12);
 
-    const newUserDoc = new UserModel(userObj);
+    //create New user document
+    const newUserDoc = new UserModel(newUser);
+
+    //save document
     await newUserDoc.save();
-
+    //send res
     res.status(201).json({ message: "User created" });
-
   } catch (err) {
-    console.log("BACKEND ERROR:", err);
-    res.status(500).json({ error: err.message });
-
+    console.log("err is ", err);
+    //delete image from cloudinary
     if (cloudinaryResult?.public_id) {
       await cloudinary.uploader.destroy(cloudinaryResult.public_id);
     }
-
     next(err);
   }
 });
+
 
 // Route for Login (USER,ADMIN,AUTHOR)
 commonApp.post('/login',async(req,res)=>{
