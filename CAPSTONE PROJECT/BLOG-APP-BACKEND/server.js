@@ -15,6 +15,7 @@ config()
 const app=exp()
 app.use(cors({
     origin:['https://mern-capstoneproject-frontend.vercel.app'],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials:true
 }))
 // body parser middleware
