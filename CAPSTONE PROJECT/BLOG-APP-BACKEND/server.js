@@ -14,7 +14,7 @@ config()
 // creating an express application
 const app=exp()
 app.use(cors({
-    origin:['https://mern-capstoneproject-frontend-a00n7x0k1-mohiddin-s-projects.vercel.app/'],
+    origin:['https://mern-capstoneproject-frontend-mohiddin-s-projects.vercel.app/'],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials:true
 }))
