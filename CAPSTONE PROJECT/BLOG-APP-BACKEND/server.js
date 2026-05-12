@@ -11,13 +11,14 @@ import cors from 'cors'
 
 
 config()
-// creating an express application
-const app=exp()
 app.use(cors({
-    origin:['https://mern-capstoneproject-frontend-mohiddin-s-projects.vercel.app/'],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials:true
-}))
+  origin: true,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+app.options("*", cors());
 // body parser middleware
 app.use(exp.json())
 app.use(cookieParser())
