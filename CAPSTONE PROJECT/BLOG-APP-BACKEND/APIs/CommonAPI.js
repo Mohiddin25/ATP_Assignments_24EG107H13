@@ -1,6 +1,6 @@
 import exp from 'express'
 import {UserModel} from '../models/UserModel.js'
-import {hash,compare} from 'bcryptjs'
+import { hash,compare } from "bcrypt";
 import jwt from 'jsonwebtoken'
 import { verifyToken } from '../middlewares/verifyToken.js'
 import cloudinary from '../config/cloudinary.js'
@@ -10,47 +10,56 @@ const {sign}=jwt
 export const commonApp=exp.Router()
 
 // Route for register
-commonApp.post('/user', upload.single("profileImageUrl"),async (req, res,next) => {
+commonApp.post('/user', upload.single("profileImageUrl"), async (req, res, next) => {
+  let cloudinaryResult;
 
-    let cloudinaryResult;
   try {
-    let allowedRoles = ["USER", "AUTHOR"];
-    //get user from req
-    const newUser = req.body;
-    console.log(newUser);
-    console.log(req.file);
+    const { email, password, role } = req.body;
 
-    //check role
-    if (!allowedRoles.includes(newUser.role)) {
+    // validation
+    if (!email || !password || !role) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
+    const allowedRoles = ["USER", "AUTHOR"];
+    if (!allowedRoles.includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
 
-    //Upload image to cloudinary from memoryStorage
+    // check duplicate
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    // upload image
     if (req.file) {
       cloudinaryResult = await uploadToCloudinary(req.file.buffer);
     }
 
-    // console.log("cloudinaryResult", cloudinaryResult);
-    //add CDN link(secure_url) of image to newUserObj
-    newUser.profileImageUrl = cloudinaryResult?.secure_url;
+    // hash password
+    const hashedPassword = await hash(password, 12);
 
-    //run validators manually
-    //hash password and replace plain with hashed one
-    newUser.password = await hash(newUser.password, 12);
+    // create user object
+    const userObj = {
+      email,
+      password: hashedPassword,
+      role,
+      profileImageUrl: cloudinaryResult?.secure_url
+    };
 
-    //create New user document
-    const newUserDoc = new UserModel(newUser);
-
-    //save document
+    const newUserDoc = new UserModel(userObj);
     await newUserDoc.save();
-    //send res
+
     res.status(201).json({ message: "User created" });
+
   } catch (err) {
-    console.log("err is ", err);
-    //delete image from cloudinary
+    console.log(err);
+
     if (cloudinaryResult?.public_id) {
       await cloudinary.uploader.destroy(cloudinaryResult.public_id);
     }
+
     next(err);
   }
 });
