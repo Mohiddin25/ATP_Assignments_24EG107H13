@@ -14,11 +14,11 @@ commonApp.post('/user', upload.single("profileImageUrl"), async (req, res, next)
   let cloudinaryResult;
 
   try {
-    const { email, password, role } = req.body;
+    const { firstName, lastName, email, password, role } = req.body;
 
     // validation
-    if (!email || !password || !role) {
-      return res.status(400).json({ message: "All fields required" });
+    if (!firstName || !email || !password || !role) {
+      return res.status(400).json({ message: "First name, email, password and role are required" });
     }
 
     const allowedRoles = ["USER", "AUTHOR"];
@@ -42,6 +42,8 @@ commonApp.post('/user', upload.single("profileImageUrl"), async (req, res, next)
 
     // create user object
     const userObj = {
+      firstName,
+      lastName,
       email,
       password: hashedPassword,
       role,
