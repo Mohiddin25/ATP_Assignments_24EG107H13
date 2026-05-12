@@ -54,7 +54,8 @@ commonApp.post('/user', upload.single("profileImageUrl"), async (req, res, next)
     res.status(201).json({ message: "User created" });
 
   } catch (err) {
-    console.log(err);
+    console.log("BACKEND ERROR:", err);
+    res.status(500).json({ error: err.message });
 
     if (cloudinaryResult?.public_id) {
       await cloudinary.uploader.destroy(cloudinaryResult.public_id);
