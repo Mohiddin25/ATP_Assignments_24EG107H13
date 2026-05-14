@@ -9,7 +9,7 @@ const app=exp()
 
 // add cors middleware
 app.use(cors({
-    origin:['http://localhost:5173']
+    origin:['https://mern-mini-app-frontend.vercel.app','http://localhost:5173'],
 }))
 app.use(exp.json())
 
