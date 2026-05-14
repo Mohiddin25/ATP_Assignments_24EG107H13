@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form"
 import { useState } from 'react'
 import { useNavigate } from "react-router"
+import axiosInstance from '../api/axiosInstance'
 
 
 function CreateEmp() {
@@ -16,18 +17,12 @@ function CreateEmp() {
         // make http post req
         setLoading(true)
         try {
-            let res = await fetch("http://localhost:3000/employee-api/employee", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newEmpObj)
-            })
+            let res = await axiosInstance.post("/employee-api/employee", newEmpObj)
             if (res.status === 201) {
                 //navigate to employees component programatically
                 navigate("/list");
             } else {
-                let errorRes = await res.json();
-                console.log("error response is ", errorRes.error);
-                throw new Error(errorRes.error);
+                throw new Error(res.data.error);
             }
         } catch (err) {
             setError(err)

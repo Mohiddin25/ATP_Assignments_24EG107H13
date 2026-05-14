@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router';
-import axios from 'axios'
+import axiosInstance from '../api/axiosInstance'
 
 function ListOfEmp() {
     const [emps, setEmps] = useState([]);
@@ -15,16 +15,15 @@ function ListOfEmp() {
       navigate("/emp-edit",{state:empObj})
     }
     const deleteEmpById=async(id)=>{
-      let res=await axios.delete(`http://localhost:3000/employee-api/employee/${id}`)
+      let res=await axiosInstance.delete(`/employee-api/employee/${id}`)
       if(res.status===200){
         getEmps();
       }
     }
     async function getEmps() {
-      let res = await fetch("http://localhost:3000/employee-api/employee");
+      let res = await axiosInstance.get("/employee-api/employee");
       if (res.status === 200) {
-        let resObj = await res.json();
-        setEmps(resObj.payload);
+        setEmps(res.data.payload);
       }
     }
   useEffect(() => {
