@@ -2,6 +2,8 @@ import exp from 'express'
 import { employeeApp } from './APIs/EmployeeAPI.js'
 import {connect} from 'mongoose'
 import cors from 'cors'
+import dotenv from "dotenv";
+dotenv.config();
 
 const app=exp()
 
@@ -13,11 +15,11 @@ app.use(exp.json())
 
 async function  connectDB(){
     try{
-        await connect("mongodb://localhost:27017/mydb2")
+        await connect(process.env.DB_URL)
         console.log("DB connected sucessfully")
         
         // start server
-        app.listen(3000,()=>console.log("server on port 3000..."))
+        app.listen(process.env.PORT,()=>console.log(`server on port ${process.env.PORT}...`))
     }catch (err){
         console.log("Error in connection:",err)
     }
