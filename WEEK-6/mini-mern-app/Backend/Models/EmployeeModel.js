@@ -13,7 +13,7 @@ const EmpSchema=new Schema({
         unique:[true,"Email already existed"]
     },
     mobile:{
-        type:Number,
+        type:String,
         required:[true,"mobileno is required"],
     },
     designation:{
